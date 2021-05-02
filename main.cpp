@@ -19,22 +19,27 @@ Word *checkWordExist(Word *, const string &);
 
 void mainAddWOrd(Word *&);
 
-void deleteWord(Word *&, const string &);
+void deleteWord(Word *&, const string &, bool);
 
 void mainDeleteWord(Word *&);
 
+void deleteSyn(Word *&, Word *&, const string &, const string &);
+
+void mainDeleteSyn(Word *&);
+
 void printAll(Word *);
 
-void deleteAllSynonyms(Word *synHead);
+void showOneWord(Word *);
 
-Word *HEAD = nullptr;
+void deleteAllSynonyms(Word *);
+
 
 int main() {
-    for (int i = 0; i < 2; ++i) {
+    Word *HEAD = nullptr;
+    for (int i = 0; i < 3; ++i) {
         mainAddWOrd(HEAD);
     }
-
-
+    showOneWord(HEAD);
 }
 
 Word *createWord(string word) {
@@ -110,7 +115,7 @@ void mainAddWOrd(Word *&head) {
     }
 }
 
-void deleteWord(Word *&head, const string &word) {
+void deleteWord(Word *&head, const string &word, bool deleteSyn) {
     Word *prev = nullptr;
     Word *current = head;
     if (head == nullptr) {
@@ -125,8 +130,8 @@ void deleteWord(Word *&head, const string &word) {
                     head = head->next;
                 else
                     prev->next = current->next;
-
-                deleteAllSynonyms(current->syn);
+                if (deleteSyn)
+                    deleteAllSynonyms(current->syn);
                 delete current;
                 return;
             }
@@ -139,9 +144,10 @@ void deleteWord(Word *&head, const string &word) {
 void printAll(Word *head) {
     while (head) {
         cout << head->value << " : ";
-        while (head->syn) {
-            cout << head->syn->value << " ";
-            head->syn = head->syn->next;
+        Word *synHead = head->syn;
+        while (synHead) {
+            cout << synHead->value << " ";
+            synHead = synHead->next;
         }
         head = head->next;
         cout << endl;
@@ -160,5 +166,59 @@ void deleteAllSynonyms(Word *synHead) {
 void mainDeleteWord(Word *&head) {
     string word;
     cout << "Enter the word you want to delete from the dictionary :";
-    deleteWord(head, word);
+    cin >> word;
+    deleteWord(head, word, true);
+}
+
+void mainDeleteSyn(Word *&head) {
+    string word;
+    string syn;
+    cout << "Enter the word you want to delete its synonym from the dictionary :";
+    cin >> word;
+    cout << "Enter the synonym you want to delete :";
+    cin >> syn;
+    Word *wordNode = checkWordExist(head, word);
+    Word *synHead = wordNode->syn;
+    deleteSyn(head, synHead, syn, word);
+    if (!synHead)
+        deleteWord(head, word, false);
+}
+
+void deleteSyn(Word *&head, Word *&synHead, const string &syn, const string &word) {
+
+    Word *prev = nullptr;
+    Word *current = synHead;
+    if (synHead == nullptr) {
+        cout << "This word has no synonyms!";
+        return;
+    } else {
+        while (current) {
+            if (syn == current->value) {
+                if (current == synHead && current->next == nullptr) {
+                    synHead = nullptr;
+                } else if (current == synHead)
+                    synHead = synHead->next;
+                else
+                    prev->next = current->next;
+
+                delete current;
+                return;
+            }
+            prev = current;
+            current = current->next;
+        }
+    }
+
+}
+
+void showOneWord(Word *head) {
+    string word;
+    cout << "Enter the word you want to find :";
+    cin >> word;
+    Word *temp = checkWordExist(head, word);
+    cout << temp->value << " : ";
+    while (temp->syn) {
+        cout << temp->syn->value << " ";
+        temp->syn = temp->syn->next;
+    }
 }
