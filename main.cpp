@@ -47,7 +47,7 @@ int main() {
     while (rerun) {
         rerun = true;
         cout << "1 : add word and synonym\n2: delete word\n3 : delete synonym\n4 : find word\n5 : show all words\n"
-                "6 : change dictation\n7 : save on file\n8 : load from file\n9 : exit";
+                "6 : change dictation\n7 : save on file\n8 : load from file\n9 : exit\n";
         int command;
         cin >> command;
         switch (command) {
@@ -80,13 +80,13 @@ int main() {
                 cin >> ans;
                 if (ans == 'y')
                     writeOnFile(HEAD);
-                else
-                    rerun = false;
+                rerun = false;
+                break;
             default:
-                cout << "invalid input";
+                cout << "invalid input\n";
         }
     }
-
+    cout << "Thanks for using this app :)";
 }
 
 Word *createWord(string word) {
@@ -268,6 +268,7 @@ void showOneWord(Word *head) {
         cout << temp->syn->value << " ";
         temp->syn = temp->syn->next;
     }
+    cout << endl;
 }
 
 void changeWord(Word *&head) {
