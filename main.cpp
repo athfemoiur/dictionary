@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -33,13 +34,59 @@ void showOneWord(Word *);
 
 void deleteAllSynonyms(Word *);
 
+void changeWord(Word *&);
+
+void writeOnFile(Word *);
+
+void addFromFile(Word *&);
+
 
 int main() {
     Word *HEAD = nullptr;
-    for (int i = 0; i < 3; ++i) {
-        mainAddWOrd(HEAD);
+    bool rerun = true;
+    while (rerun) {
+        rerun = true;
+        cout << "1 : add word and synonym\n2: delete word\n3 : delete synonym\n4 : find word\n5 : show all words\n"
+                "6 : change dictation\n7 : save on file\n8 : load from file\n9 : exit";
+        int command;
+        cin >> command;
+        switch (command) {
+            case 1:
+                mainAddWOrd(HEAD);
+                break;
+            case 2:
+                mainDeleteWord(HEAD);
+                break;
+            case 3:
+                mainDeleteSyn(HEAD);
+                break;
+            case 4:
+                showOneWord(HEAD);
+                break;
+            case 5:
+                printAll(HEAD);
+                break;
+            case 6:
+                changeWord(HEAD);
+                break;
+            case 7:
+                writeOnFile(HEAD);
+                break;
+            case 8:
+                addFromFile(HEAD);
+            case 9:
+                char ans;
+                cout << "do you want to save ?(y/n)";
+                cin >> ans;
+                if (ans == 'y')
+                    writeOnFile(HEAD);
+                else
+                    rerun = false;
+            default:
+                cout << "invalid input";
+        }
     }
-    showOneWord(HEAD);
+
 }
 
 Word *createWord(string word) {
@@ -221,4 +268,55 @@ void showOneWord(Word *head) {
         cout << temp->syn->value << " ";
         temp->syn = temp->syn->next;
     }
+}
+
+void changeWord(Word *&head) {
+    string word;
+    cout << "Enter the word you want to change :";
+    cin >> word;
+    Word *temp = checkWordExist(head, word);
+    cout << "Enter the new word :";
+    cin >> word;
+    Word *new_word = createWord(word);
+    new_word->syn = temp->syn;
+    deleteWord(head, temp->value, false);
+    addWordOrSynonym(head, new_word);
+}
+
+void writeOnFile(Word *head) {
+    fstream f("data.txt", ios::out);
+    while (head) {
+        string temp;
+        temp += head->value;
+        while (head->syn) {
+            temp += " ";
+            temp += head->syn->value;
+            head->syn = head->syn->next;
+        }
+        head = head->next;
+        f << temp << endl;
+    }
+    f.close();
+}
+
+void addFromFile(Word *&head) {
+    fstream f("data.txt", ios::in);
+    string temp;
+    while (getline(f, temp)) {
+        Word *wordNode;
+        int i, start = 0;
+        for (i = 0; i < temp.length(); ++i) {
+            if (temp[i] == ' ') {
+                string word = temp.substr(start, i - start);
+                if (start == 0) {
+                    wordNode = createWord(word);
+                } else
+                    addWordOrSynonym(wordNode->syn, createWord(word));
+                start = i + 1;
+            }
+        }
+        addWordOrSynonym(wordNode->syn, createWord(temp.substr(start, i - start + 1)));
+        addWordOrSynonym(head, wordNode);
+    }
+    f.close();
 }
