@@ -24,7 +24,7 @@ void deleteWord(Word *&, const string &, bool);
 
 void mainDeleteWord(Word *&);
 
-void deleteSyn(Word *&, Word *&, const string &, const string &);
+void deleteSyn(Word *&, const string &);
 
 void mainDeleteSyn(Word *&);
 
@@ -46,6 +46,7 @@ int main() {
     bool rerun = true;
     while (rerun) {
         rerun = true;
+        cout << "##########################################################\n";
         cout << "1 : add word and synonym\n2: delete word\n3 : delete synonym\n4 : find word\n5 : show all words\n"
                 "6 : change dictation\n7 : save on file\n8 : load from file\n9 : exit\n";
         int command;
@@ -74,6 +75,7 @@ int main() {
                 break;
             case 8:
                 addFromFile(HEAD);
+                break;
             case 9:
                 char ans;
                 cout << "do you want to save ?(y/n)";
@@ -225,25 +227,23 @@ void mainDeleteSyn(Word *&head) {
     cout << "Enter the synonym you want to delete :";
     cin >> syn;
     Word *wordNode = checkWordExist(head, word);
-    Word *synHead = wordNode->syn;
-    deleteSyn(head, synHead, syn, word);
-    if (!synHead)
+    deleteSyn(wordNode->syn, syn);
+    if (!wordNode->syn)
         deleteWord(head, word, false);
 }
 
-void deleteSyn(Word *&head, Word *&synHead, const string &syn, const string &word) {
+void deleteSyn(Word *&synHead, const string &syn) {
 
     Word *prev = nullptr;
     Word *current = synHead;
     if (synHead == nullptr) {
-        cout << "This word has no synonyms!";
         return;
     } else {
         while (current) {
             if (syn == current->value) {
-                if (current == synHead && current->next == nullptr) {
+                if (current == synHead && current->next == nullptr)
                     synHead = nullptr;
-                } else if (current == synHead)
+                else if (current == synHead)
                     synHead = synHead->next;
                 else
                     prev->next = current->next;
@@ -255,7 +255,6 @@ void deleteSyn(Word *&head, Word *&synHead, const string &syn, const string &wor
             current = current->next;
         }
     }
-
 }
 
 void showOneWord(Word *head) {
@@ -289,10 +288,11 @@ void writeOnFile(Word *head) {
     while (head) {
         string temp;
         temp += head->value;
-        while (head->syn) {
+        Word *headSyn = head->syn;
+        while (headSyn) {
             temp += " ";
-            temp += head->syn->value;
-            head->syn = head->syn->next;
+            temp += headSyn->value;
+            headSyn = headSyn->next;
         }
         head = head->next;
         f << temp << endl;
