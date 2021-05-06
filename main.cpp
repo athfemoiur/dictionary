@@ -146,6 +146,8 @@ void mainAddWOrd(Word *&head) {
     int n;
     cout << "Enter the number of synonyms :";
     cin >> n;
+    if (n==0)
+        return;
     Word *tempNode = checkWordExist(head, word);
     if (tempNode) {
         for (int i = 0; i < n; ++i) {
