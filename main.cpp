@@ -18,6 +18,7 @@ void addWordOrSynonym(Word *&, Word *);
 
 Word *checkWordExist(Word *, const string &);
 
+
 void mainAddWOrd(Word *&);
 
 void deleteWord(Word *&, const string &, bool);
@@ -40,8 +41,11 @@ void writeOnFile(Word *);
 
 void addFromFile(Word *&);
 
+bool checkSynExist(Word *, const string &);
+
 
 int main() {
+    // implements the main menu of the program
     Word *HEAD = nullptr;
     bool rerun = true;
     while (rerun) {
@@ -92,12 +96,14 @@ int main() {
 }
 
 Word *createWord(string word) {
+    //create a ptr to Word and return it
     toLower(word);
     Word *temp = new Word{std::move(word), nullptr, nullptr};
     return temp;
 }
 
 void toLower(string &s) {
+    //lower the string
     for (char &i : s) {
         if (i >= 65 && i <= 90)
             i += 32;
@@ -105,6 +111,7 @@ void toLower(string &s) {
 }
 
 void addWordOrSynonym(Word *&node, Word *synonym) {
+    // add a word or synonym(based on the case) sorted
     if (node == nullptr) {
         node = synonym;
         return;
@@ -131,6 +138,7 @@ void addWordOrSynonym(Word *&node, Word *synonym) {
 }
 
 Word *checkWordExist(Word *head, const string &word) {
+    // a function that iterates over the dictionary and return the node of a word if exists
     while (head) {
         if (head->value == word)
             return head;
@@ -140,27 +148,30 @@ Word *checkWordExist(Word *head, const string &word) {
 }
 
 void mainAddWOrd(Word *&head) {
+    // a function for taking input from user for adding words and synonyms
     cout << "Enter the word you want to add :";
     string word;
     cin >> word;
     int n;
     cout << "Enter the number of synonyms :";
     cin >> n;
-    if (n==0)
+    if (n == 0)
         return;
     Word *tempNode = checkWordExist(head, word);
     if (tempNode) {
         for (int i = 0; i < n; ++i) {
             string tempWord;
             cin >> tempWord;
-            addWordOrSynonym(tempNode->syn, createWord(tempWord));
+            if (!checkSynExist(tempNode->syn, tempWord))
+                addWordOrSynonym(tempNode->syn, createWord(tempWord));
         }
     } else {
         tempNode = createWord(word);
         for (int i = 0; i < n; ++i) {
             string tempWord;
             cin >> tempWord;
-            addWordOrSynonym(tempNode->syn, createWord(tempWord));
+            if (!checkSynExist(tempNode->syn, tempWord))
+                addWordOrSynonym(tempNode->syn, createWord(tempWord));
         }
         addWordOrSynonym(head, tempNode);
     }
@@ -304,10 +315,11 @@ void writeOnFile(Word *head) {
 
 void addFromFile(Word *&head) {
     string filePath;
-    cout<<"Enter the file name :";
-    cin>>filePath;
+    cout << "Enter the file name :";
+    cin >> filePath;
     fstream f(filePath, ios::in);
     string temp;
+    bool addWord = false;
     while (getline(f, temp)) {
         Word *wordNode;
         int i, start = 0;
@@ -315,14 +327,32 @@ void addFromFile(Word *&head) {
             if (temp[i] == ' ') {
                 string word = temp.substr(start, i - start);
                 if (start == 0) {
-                    wordNode = createWord(word);
-                } else
-                    addWordOrSynonym(wordNode->syn, createWord(word));
+                    wordNode = checkWordExist(head, word);
+                    if (!wordNode){
+                        wordNode = createWord(word);
+                        addWord = true;
+                    }
+                } else{
+                    if (!checkSynExist(wordNode->syn, word))
+                        addWordOrSynonym(wordNode->syn, createWord(word));
+                }
                 start = i + 1;
             }
         }
-        addWordOrSynonym(wordNode->syn, createWord(temp.substr(start, i - start + 1)));
-        addWordOrSynonym(head, wordNode);
+        string lastSyn = temp.substr(start, i - start + 1);
+        if (!checkSynExist(wordNode->syn, lastSyn))
+            addWordOrSynonym(wordNode->syn, createWord(lastSyn));
+        if (addWord)
+            addWordOrSynonym(head, wordNode);
     }
     f.close();
+}
+
+bool checkSynExist(Word *synHead, const string &syn) {
+    while (synHead) {
+        if (synHead->value == syn)
+            return true;
+        synHead = synHead->next;
+    }
+    return false;
 }
