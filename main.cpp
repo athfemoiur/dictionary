@@ -303,7 +303,10 @@ void writeOnFile(Word *head) {
 }
 
 void addFromFile(Word *&head) {
-    fstream f("data.txt", ios::in);
+    string filePath;
+    cout<<"Enter the file name :";
+    cin>>filePath;
+    fstream f(filePath, ios::in);
     string temp;
     while (getline(f, temp)) {
         Word *wordNode;
