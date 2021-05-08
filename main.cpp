@@ -46,7 +46,7 @@ bool checkSynExist(Word *, const string &);
 
 int main() {
     // implements the main menu of the program
-    Word *HEAD = nullptr;
+    Word *HEAD = nullptr; // the head of word's linked list
     bool rerun = true;
     while (rerun) {
         rerun = true;
@@ -112,7 +112,7 @@ void toLower(string &s) {
 
 void addWordOrSynonym(Word *&node, Word *synonym) {
     // add a word or synonym(based on the case) sorted
-    if (node == nullptr) {
+    if (node == nullptr) { // if the list is empty
         node = synonym;
         return;
     }
@@ -158,7 +158,7 @@ void mainAddWOrd(Word *&head) {
     if (n == 0)
         return;
     Word *tempNode = checkWordExist(head, word);
-    if (tempNode) {
+    if (tempNode) { // checking if this word has already exists or not
         for (int i = 0; i < n; ++i) {
             string tempWord;
             cin >> tempWord;
@@ -193,7 +193,7 @@ void deleteWord(Word *&head, const string &word, bool deleteSyn) {
                 else
                     prev->next = current->next;
                 if (deleteSyn)
-                    deleteAllSynonyms(current->syn);
+                    deleteAllSynonyms(current->syn); // delete the linked list of the synonyms of this word
                 delete current;
                 return;
             }
@@ -217,6 +217,7 @@ void printAll(Word *head) {
 }
 
 void deleteAllSynonyms(Word *synHead) {
+    // deleting all of the synonyms and free all of the memory
     Word *temp;
     while (synHead) {
         temp = synHead;
@@ -241,7 +242,7 @@ void mainDeleteSyn(Word *&head) {
     cin >> syn;
     Word *wordNode = checkWordExist(head, word);
     deleteSyn(wordNode->syn, syn);
-    if (!wordNode->syn)
+    if (!wordNode->syn) // if the word has no syn after deleting
         deleteWord(head, word, false);
 }
 
@@ -284,6 +285,7 @@ void showOneWord(Word *head) {
 }
 
 void changeWord(Word *&head) {
+    // create a new word and add it, delete the old word
     string word;
     cout << "Enter the word you want to change :";
     cin >> word;
@@ -297,6 +299,7 @@ void changeWord(Word *&head) {
 }
 
 void writeOnFile(Word *head) {
+    // write all of the data on the file, on each line, first of all the word then synonyms separated byd space
     fstream f("data.txt", ios::out);
     while (head) {
         string temp;
@@ -314,6 +317,7 @@ void writeOnFile(Word *head) {
 }
 
 void addFromFile(Word *&head) {
+    // read each line as an string the split them by space and add them to the list(It checks existence of each word)
     string filePath;
     cout << "Enter the file name :";
     cin >> filePath;
@@ -349,6 +353,7 @@ void addFromFile(Word *&head) {
 }
 
 bool checkSynExist(Word *synHead, const string &syn) {
+    // check the existence of a syn for not adding duplicates
     while (synHead) {
         if (synHead->value == syn)
             return true;
